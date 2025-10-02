@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran - Dana, Gopay & QRIS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://files.catbox.moe/dnas84.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(0, 0, 0, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            color: #4CAF50;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            margin-bottom: 30px;
+            color: #ddd;
+            font-size: 16px;
+        }
+        
+        .payment-option {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s, background-color 0.3s;
+            cursor: pointer;
+        }
+        
+        .payment-option:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .payment-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .payment-icon {
+            font-size: 24px;
+        }
+        
+        .qris-img {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #4CAF50;
+        }
+        
+        .qris-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .phone-number {
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; bottom: 0; }
+            10% { opacity: 1; bottom: 20px; }
+            90% { opacity: 1; bottom: 20px; }
+            100% { opacity: 0; bottom: 0; }
+        }
+        
+        .payment-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+        }
+        
+        .payment-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.03);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .music-control i {
+            font-size: 24px;
+            color: white;
+        }
+        
+        .music-info {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            max-width: 200px;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="music-control" id="musicControl">
+        <i class="fas fa-play" id="playIcon"></i>
+    </div>
+    <div class="music-info" id="musicInfo">
+        Musik diputar otomatis. Klik ikon untuk mengontrol.
+    </div>
+    
+    <div class="container">
+        <h1>Pembayaran</h1>
+        <p class="subtitle">Pilih metode pembayaran yang Anda inginkan</p>
+        
+        <div class="payment-option">
+            <div class="payment-title">
+                <i class="fas fa-qrcode payment-icon"></i>
+                <span>QRIS</span>
+            </div>
+            <div class="qris-img">
+                <img src="https://files.catbox.moe/h5q56j.jpg" alt="QRIS Code">
+            </div>
+            <p>Scan kode QR di atas untuk melakukan pembayaran</p>
+            <button class="payment-btn" onclick="showNotification()">Konfirmasi Pembayaran</button>
+        </div>
+        
+        <div class="payment-option">
+            <div class="payment-title">
+                <i class="fas fa-wallet payment-icon"></i>
+                <span>DANA</span>
+            </div>
+            <div class="phone-number">
+                081999232736 (Novi)
+            </div>
+            <button class="copy-btn" onclick="copyToClipboard('081999232736')">Salin Nomor</button>
+            <button class="payment-btn" onclick="showNotification()">Konfirmasi Pembayaran</button>
+        </div>
+        
+        <div class="payment-option">
+            <div class="payment-title">
+                <i class="fas fa-mobile-alt payment-icon"></i>
+                <span>Gopay</span>
+            </div>
+            <div class="phone-number">
+                081999232736 (Novi)
+            </div>
+            <button class="copy-btn" onclick="copyToClipboard('081999232736')">Salin Nomor</button>
+            <button class="payment-btn" onclick="showNotification()">Konfirmasi Pembayaran</button>
+        </div>
+        
+        <div class="footer">
+            <p>Setelah melakukan pembayaran, klik tombol "Konfirmasi Pembayaran"</p>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        Terima kasih! Pembayaran Anda telah dikonfirmasi.
+    </div>
+    
+    <audio id="backgroundMusic" loop>
+        <source src="https://song.link/y/bAoxY1jQnqo" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+    
+    <script>
+        // Musik otomatis diputar saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            const playIcon = document.getElementById('playIcon');
+            const musicInfo = document.getElementById('musicInfo');
+            
+            // Coba putar musik otomatis
+            const playPromise = music.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Musik berhasil diputar otomatis
+                    playIcon.classList.remove('fa-play');
+                    playIcon.classList.add('fa-pause');
+                }).catch(error => {
+                    // Autoplay diblokir, tampilkan info
+                    musicInfo.style.display = 'block';
+                    setTimeout(() => {
+                        musicInfo.style.display = 'none';
+                    }, 5000);
+                });
+            }
+            
+            // Kontrol musik
+            document.getElementById('musicControl').addEventListener('click', function() {
+                if (music.paused) {
+                    music.play();
+                    playIcon.classList.remove('fa-play');
+                    playIcon.classList.add('fa-pause');
+                } else {
+                    music.pause();
+                    playIcon.classList.remove('fa-pause');
+                    playIcon.classList.add('fa-play');
+                }
+            });
+        });
+        
+        // Fungsi untuk menyalin nomor telepon
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Nomor berhasil disalin: ' + text);
+            }, function(err) {
+                alert('Gagal menyalin nomor: ' + err);
+            });
+        }
+        
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
